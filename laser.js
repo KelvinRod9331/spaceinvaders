@@ -24,12 +24,11 @@ function Laser(x, y) {
   };
 
   this.move = function() {
-    this.y = this.y - 3;
+    this.y = this.y - 10 ;
   };
 
   this.offScreen = function() {
     if (this.y < 0) {
-        console.log("OFF SCREEN")
       this.toDelete = true
     }
    
