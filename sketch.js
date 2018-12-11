@@ -1,9 +1,10 @@
 var ship;
 var canvas;
-
-var paused = false
+var index;
+var paused = false;
 var aliens = [];
 var lasers = [];
+var test = false;
 var sounds = {};
 var sprites = {};
 
@@ -23,20 +24,20 @@ function preload() {
   sounds["explosion"] = [];
 
   for (let i = 1; i <= 3; i++) {
-    sounds.explosion.push(
-        loadSound(`Sound Effects/Explosion0${i}.mp3`)
-    );
+    sounds.explosion.push(loadSound(`Sound Effects/Explosion0${i}.mp3`));
   }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-
   ship = new Ship();
-
   for (let i = 0; i < 10; i++) {
     aliens[i] = new Alien(i * 80 + 80, 80);
   }
+
+  setInterval(function() {
+    index = floor(random(0, aliens.length));
+  }, 4000);
 }
 
 function windowResized() {
@@ -48,6 +49,15 @@ function draw() {
   ship.show(sprites.ship);
 
   var edge = false;
+
+  if (frameCount % 120 === 0) {
+    test = true;
+    if(aliens[index]){
+        let laser = new EnemyLaser(aliens[index].x, aliens[index].y, index);
+        aliens[index].addLaser(laser);
+    }
+   
+  }
 
   /**
    * Aliens For Loop
@@ -65,6 +75,22 @@ function draw() {
   if (edge) {
     for (let i = 0; i < aliens.length; i++) {
       aliens[i].shiftDown();
+    }
+  }
+  if (test) {
+    for (let i = aliens.length - 1; i >= 0; i--) {
+      if (aliens[i].alienLasers) {
+        aliens[i].alienLasers.show(sprites.laser);
+        aliens[i].alienLasers.move();
+
+        if (aliens[i].alienLasers.hits(ship)) {
+        //   console.log("hit");
+        }
+
+        if (aliens[i].alienLasers.offScreen()) {
+          aliens[i].alienLasers = undefined;
+        }
+      }
     }
   }
 
@@ -98,6 +124,10 @@ function draw() {
   }
 
   /**
+   * Enemy Lasers
+   */
+
+  /**
    * Ship Movement
    */
 
@@ -113,16 +143,15 @@ function draw() {
     ship.move(-1);
   }
 
-
   /**
    * When There is no more aliens
    */
 
-   if(aliens.length == 0){
+  if (aliens.length == 0) {
     for (let i = 0; i < 10; i++) {
-        aliens[i] = new Alien(i * 80 + 80, 80);
-      }
-   }
+      aliens[i] = new Alien(i * 80 + 80, 80);
+    }
+  }
 }
 
 function keyPressed() {
@@ -131,11 +160,11 @@ function keyPressed() {
     lasers.push(laser);
     sounds.laser.play();
   } else if (key === "p") {
-    paused = true
-    // sounds.song.stop(); 
+    paused = true;
+    // sounds.song.stop();
     frameRate(0);
   } else if (key === "r") {
-    paused = false
+    paused = false;
     frameRate(60);
   }
 }

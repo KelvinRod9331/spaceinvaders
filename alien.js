@@ -5,21 +5,23 @@ function Alien(x, y) {
 
   this.xdir = 1;
   this.toDelete = false;
-  this.alien_laser = [];
-
+  this.alienLasers;
 
   this.show = function(sprite) {
     imageMode(CENTER);
     image(sprite, this.x, this.y, this.r * 2, this.r * 2);
   };
 
-
   this.remove = function() {
     this.toDelete = true;
   };
 
-  this.shoot = function() {
-      
+  this.addLaser = function(laser) {
+    this.alienLasers = laser;
+  };
+
+  this.shootLaser = function() {
+    return true
   };
 
   this.shiftDown = function() {
