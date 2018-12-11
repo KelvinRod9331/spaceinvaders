@@ -4,9 +4,9 @@ function Laser(x, y) {
   this.r = 8;
   this.toDelete = false;
 
-  this.show = function() {
-    fill(50, 0, 200);
-    ellipse(this.x, this.y, this.r * 2, this.r * 2);
+  this.show = function(sprite) {
+    imageMode(CENTER);
+    image(sprite, this.x, this.y, this.r , 20);
   };
 
   this.remove = function() {
