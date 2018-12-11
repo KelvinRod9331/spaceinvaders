@@ -20,10 +20,6 @@ function Alien(x, y) {
     this.alienLasers = laser;
   };
 
-  this.shootLaser = function() {
-    return true
-  };
-
   this.shiftDown = function() {
     this.xdir *= -1;
     this.y += this.r;

@@ -53,7 +53,7 @@ function draw() {
   if (frameCount % 120 === 0) {
     test = true;
     if(aliens[index]){
-        let laser = new EnemyLaser(aliens[index].x, aliens[index].y, index);
+        let laser = new EnemyLaser(aliens[index].x, aliens[index].y);
         aliens[index].addLaser(laser);
     }
    
@@ -84,10 +84,13 @@ function draw() {
         aliens[i].alienLasers.move();
 
         if (aliens[i].alienLasers.hits(ship)) {
-        //   console.log("hit");
-        }
 
-        if (aliens[i].alienLasers.offScreen()) {
+            var animated = new Sprite(sprites.explosion, aliens[i].alienLasers, 'laser');
+            aliens[i].alienLasers = undefined;
+            sounds.explosion[Math.floor(random(0, 2))].play();
+            animated.show();
+            ship.damage()
+        } else if (aliens[i].alienLasers.offScreen()) {
           aliens[i].alienLasers = undefined;
         }
       }
@@ -105,7 +108,7 @@ function draw() {
 
     for (let j = 0; j < aliens.length; j++) {
       if (lasers[i].hits(aliens[j])) {
-        var animated = new Sprite(sprites.explosion, aliens[j]);
+        var animated = new Sprite(sprites.explosion, aliens[j], 'alien');
         aliens[j].remove();
         if (aliens[j].toDelete) {
           aliens.splice(j, 1);

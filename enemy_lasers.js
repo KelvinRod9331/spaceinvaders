@@ -1,9 +1,8 @@
-function EnemyLaser(x, y, alien) {
+function EnemyLaser(x, y) {
     this.x = x;
     this.y = y;
     this.r = 8;
     this.toDelete = false;
-    this.alien = alien
 
      
     this.show = function(sprite) {
@@ -16,9 +15,7 @@ function EnemyLaser(x, y, alien) {
     };
   
     this.hits = function(ship) {
-    console.log('HIT');
-      var d = dist(this.x, this.y, ship.x, ship.x);
-      console.log(d, this.r);
+      var d = dist(this.x, this.y, ship.x, ship.y);
       if (d < this.r + ship.r) {
         return true;
       } else {

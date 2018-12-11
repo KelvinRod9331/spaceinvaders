@@ -1,9 +1,12 @@
 function Ship() {
   this.x = width / 2;
+  this.y = height - 60
+  this.r = 30
+  this.health = 100
 
   this.show = function(sprite) {
     imageMode(CENTER);
-    image(sprite, this.x, height - 60, 100, 60);
+    image(sprite, this.x, this.y, this.r * 2, this.r * 2);
   };
 
   this.move = function(dir) {
@@ -17,4 +20,10 @@ function Ship() {
       return "right";
     }
   };
+
+  this.damage = function(){
+    this.health -= 20
+
+    console.log(this.health)
+  }
 }
