@@ -1,9 +1,10 @@
 var ship;
 var canvas;
 
+var paused = false
 var aliens = [];
 var lasers = [];
-var sounds = {}
+var sounds = {};
 var sprites = {};
 
 function preload() {
@@ -17,11 +18,20 @@ function preload() {
       loadImage(`Sprites/Explosions/bubble_explo${i}.png`)
     );
   }
+
+  sounds["laser"] = loadSound("Sound Effects/Laser Blast_1.mp3");
+  sounds["explosion"] = [];
+
+  for (let i = 1; i <= 3; i++) {
+    sounds.explosion.push(
+        loadSound(`Sound Effects/Explosion0${i}.mp3`)
+    );
+  }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  sounds['laser'] = loadSound("")
+
   ship = new Ship();
 
   for (let i = 0; i < 10; i++) {
@@ -58,8 +68,6 @@ function draw() {
     }
   }
 
-
-
   /**
    * Lasers For Loop
    */
@@ -72,13 +80,13 @@ function draw() {
     for (let j = 0; j < aliens.length; j++) {
       if (lasers[i].hits(aliens[j])) {
         var animated = new Sprite(sprites.explosion, aliens[j]);
-        aliens[j].remove()
+        aliens[j].remove();
         if (aliens[j].toDelete) {
-            aliens.splice(j, 1);
-          }
+          aliens.splice(j, 1);
+        }
         lasers[i].remove();
+        sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
-        
       }
     }
   }
@@ -104,15 +112,30 @@ function draw() {
   } else if (ship.offScreen() === "right") {
     ship.move(-1);
   }
+
+
+  /**
+   * When There is no more aliens
+   */
+
+   if(aliens.length == 0){
+    for (let i = 0; i < 10; i++) {
+        aliens[i] = new Alien(i * 80 + 80, 80);
+      }
+   }
 }
 
 function keyPressed() {
-  if (key === " ") {
+  if (key === " " && !paused) {
     var laser = new Laser(ship.x, height - 60);
     lasers.push(laser);
-  } else if(key === 'p'){
-      frameRate(0)
-  } else if(key === 'r'){
-      frameRate(60)
+    sounds.laser.play();
+  } else if (key === "p") {
+    paused = true
+    // sounds.song.stop(); 
+    frameRate(0);
+  } else if (key === "r") {
+    paused = false
+    frameRate(60);
   }
 }

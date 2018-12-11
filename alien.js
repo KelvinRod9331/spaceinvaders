@@ -18,7 +18,9 @@ function Alien(x, y) {
     this.toDelete = true;
   };
 
-  this.shoot = function() {};
+  this.shoot = function() {
+      
+  };
 
   this.shiftDown = function() {
     this.xdir *= -1;
