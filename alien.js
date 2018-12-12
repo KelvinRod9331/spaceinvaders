@@ -1,11 +1,13 @@
 function Alien(x, y) {
   this.x = x;
   this.y = y;
-  this.r = 30;
+  this.r = 25;
 
   this.xdir = 1;
   this.toDelete = false;
   this.alienLasers;
+  this.alienLasers_Sound;
+//   this.powerUp;
 
   this.show = function(sprite) {
     imageMode(CENTER);
@@ -16,8 +18,9 @@ function Alien(x, y) {
     this.toDelete = true;
   };
 
-  this.addLaser = function(laser) {
+  this.addLaser = function(laser, sound) {
     this.alienLasers = laser;
+    this.alienLasers_Sound = sound
   };
 
   this.shiftDown = function() {

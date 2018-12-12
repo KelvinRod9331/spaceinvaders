@@ -1,7 +1,7 @@
 function EnemyLaser(x, y) {
     this.x = x;
     this.y = y;
-    this.r = 8;
+    this.r = 2;
     this.toDelete = false;
 
      
@@ -24,7 +24,7 @@ function EnemyLaser(x, y) {
     };
   
     this.move = function() {
-      this.y = this.y + 7 ;
+      this.y = this.y + 9 ;
     };
   
     this.offScreen = function() {

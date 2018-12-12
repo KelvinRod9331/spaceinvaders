@@ -1,7 +1,7 @@
 function Laser(x, y) {
   this.x = x;
   this.y = y;
-  this.r = 8;
+  this.r = 2;
   this.toDelete = false;
 
   this.show = function(sprite) {
