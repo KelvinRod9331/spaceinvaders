@@ -52,7 +52,8 @@ function preload() {
     wingman: loadImage(`Sprites/PowerUps/images/wingman.png`),
     coin: loadImage(`Sprites/PowerUps/images/coin.png`),
     straight: loadImage(`Sprites/PowerUps/images/straight_gun.png`),
-    diagonal: loadImage(`Sprites/PowerUps/images/diagonal_gun.png`)
+    diagonal: loadImage(`Sprites/PowerUps/images/diagonal_gun.png`),
+    shield: loadImage(`Sprites/PowerUps/images/shield.png`)
   };
 
   //******************************************************************************* */
@@ -79,9 +80,9 @@ function preload() {
   //******************************************************************************* */
 
   sounds["powerUp"] = {
-      health: loadSound(`Sound Effects/Power_Health.mp3`),
-      weapon: loadSound(`Sound Effects/Power_Weapon.mp3`),
-  }
+    health: loadSound(`Sound Effects/Power_Health.mp3`),
+    weapon: loadSound(`Sound Effects/Power_Weapon.mp3`)
+  };
 }
 
 function setup() {
@@ -89,7 +90,6 @@ function setup() {
 
   ship = new Ship();
   healthBar = new HealthBar();
-
 
   for (let i = 0; i < 10; i++) {
     aliens[i] = new Alien(i * 60 + 60, 150);
@@ -104,8 +104,8 @@ function setup() {
       return [key, sprites.powerUp[key]];
     });
 
-    let aI = floor(random(0, aliens.length - 1));
-    let pI = floor(random(0, powers.length - 1));
+    let aI = floor(random(0, aliens.length));
+    let pI = floor(random(0, powers.length));
     power_up = new PowerUp(aliens[aI].x, aliens[aI].y, powers[pI]);
   }, 5000);
 }
@@ -158,33 +158,31 @@ function draw() {
    * Enemy Lasers Loop
    */
 
-  
-    for (let i = aliens.length - 1; i >= 0; i--) {
-      if (aliens[i].alienLasers) {
-        aliens[i].alienLasers.show(sprites.laser);
-        aliens[i].alienLasers.move();
+  for (let i = aliens.length - 1; i >= 0; i--) {
+    if (aliens[i].alienLasers) {
+      aliens[i].alienLasers.show(sprites.laser);
+      aliens[i].alienLasers.move();
 
-        if (aliens[i].alienLasers_Sound) {
-          aliens[i].alienLasers_Sound.play();
-          aliens[i].alienLasers_Sound = undefined;
-        }
+      if (aliens[i].alienLasers_Sound) {
+        aliens[i].alienLasers_Sound.play();
+        aliens[i].alienLasers_Sound = undefined;
+      }
 
-        if (aliens[i].alienLasers.hits(ship)) {
-          var animated = new Sprite(
-            sprites.explosion,
-            aliens[i].alienLasers,
-            "laser"
-          );
-          aliens[i].alienLasers = undefined;
-          sounds.explosion[Math.floor(random(0, 2))].play();
-          animated.show();
-          ship.damage();
-        } else if (aliens[i].alienLasers.offScreen()) {
-          aliens[i].alienLasers = undefined;
-        }
+      if (aliens[i].alienLasers.hits(ship)) {
+        var animated = new Sprite(
+          sprites.explosion,
+          aliens[i].alienLasers,
+          "laser"
+        );
+        aliens[i].alienLasers = undefined;
+        sounds.explosion[Math.floor(random(0, 2))].play();
+        animated.show();
+        ship.damage();
+      } else if (aliens[i].alienLasers.offScreen()) {
+        aliens[i].alienLasers = undefined;
       }
     }
-  
+  }
 
   //******************************************************************************* */
 
@@ -260,22 +258,26 @@ function draw() {
       switch (power_up.typePowerUp) {
         case "health":
           ship.health = 400;
-          sounds.powerUp.health.play()
+          sounds.powerUp.health.play();
           break;
-          case "straight":
-          sounds.powerUp.weapon.play()
+        case "straight":
+          sounds.powerUp.weapon.play();
           break;
-          case "diagonal":
-          sounds.powerUp.weapon.play()
+        case "diagonal":
+          sounds.powerUp.weapon.play();
           break;
-          case "missile":
-          sounds.powerUp.weapon.play()
+        case "missile":
+          sounds.powerUp.weapon.play();
+          break;
+
+          case "shield":
+          sounds.powerUp.weapon.play();
           break;
         default:
-        console.log(power_up.typePowerUp)
+          console.log(power_up.typePowerUp);
           break;
       }
-     
+
       power_up = undefined;
     } else if (power_up.offScreen()) {
       power_up = undefined;

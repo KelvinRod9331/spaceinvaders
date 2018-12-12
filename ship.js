@@ -3,6 +3,7 @@ function Ship() {
   this.y = height - 60
   this.r = 30
   this.health = 400
+  this.score = 0
 
   this.show = function(sprite) {
     imageMode(CENTER);
@@ -23,7 +24,5 @@ function Ship() {
 
   this.damage = function(){
     this.health -= 40
-
-    console.log(this.health)
   }
 }
