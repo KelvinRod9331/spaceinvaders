@@ -1,12 +1,15 @@
-function Laser(x, y) {
-  this.x = x;
-  this.y = y;
+function Laser(ship) {
+  this.xL = ship.x - 10;
+  this.yL = height - 100;
+  this.xR = ship.x + 10;
+  this.yR = this.yL;
   this.r = 2;
   this.toDelete = false;
 
   this.show = function(sprite) {
     imageMode(CENTER);
-    image(sprite, this.x, this.y, this.r , 20);
+    image(sprite, this.xL, this.yL, this.r , 20);
+    image(sprite, this.xR, this.yR, this.r , 20);
   };
 
   this.remove = function() {
@@ -14,9 +17,9 @@ function Laser(x, y) {
   };
 
   this.hits = function(alien) {
-    var d = dist(this.x, this.y, alien.x, alien.y);
-
-    if (d < this.r + alien.r) {
+    var left = dist(this.xL, this.yL, alien.x, alien.y);
+    var right = dist(this.xR, this.yR, alien.x, alien.y)
+    if (left < this.r + alien.r || right < this.r + alien.r) {
       return true;
     } else {
       return false;
@@ -24,7 +27,8 @@ function Laser(x, y) {
   };
 
   this.move = function() {
-    this.y = this.y - 10 ;
+    this.yL = this.yL - 10 ;
+    this.yR = this.yR - 10
   };
 
   this.offScreen = function() {

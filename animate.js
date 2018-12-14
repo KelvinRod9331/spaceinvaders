@@ -13,9 +13,9 @@ class Sprite {
           imageMode(CENTER)
           image(this.animation[i], this.x, this.y, 80, 80);
       }
-    } else if(this.type === 'laser'){
+    } else if(this.type === 'ship'){
           imageMode(CENTER)
-          image(this.animation[1], this.x, this.y, 100, 100);
+          image(this.animation[2], this.x, this.y - 30, 100, 100);
     }
   }
   

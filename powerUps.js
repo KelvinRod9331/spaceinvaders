@@ -4,7 +4,7 @@ class PowerUp{
         this.y = y
         this.r = 40
         this.typePowerUp = power[0]
-        this.sprite = power[1]
+        this.sprite = power[0] === 'shield' ? power[1][0] : power[1]
     }
 
 

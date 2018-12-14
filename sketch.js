@@ -1,18 +1,18 @@
-var ship, canvas, index, healthBar, power_up;
+var ship, canvas, index, healthBar, power_up, hud;
 var paused = false;
 //var init = false;
 //var release = false;
+var missile_amount = 0;
 var aliens = [];
 var lasers = [];
+var missiles = [];
 var sounds = {};
 var sprites = {};
 
 function preload() {
-  sprites["ship"] = loadImage(
-    "Sprites/Spaceships/Player Ships/SpaceshipTest.png"
-  );
-
-  sprites["laser"] = loadImage("Sprites/Lasers/laser-red-02.png");
+  sprites["ship"] = loadImage("Sprites/Spaceships/Player Ships/starship.svg");
+  sprites["laser"] = loadImage("Sprites/Weapons/laser-yellow-04.png");
+  sprites["missile"] = loadImage("Sprites/Weapons/torpedo.svg");
 
   /**
    * Sprite Alien Ships Array
@@ -42,6 +42,21 @@ function preload() {
   //******************************************************************************* */
 
   /**
+   *  Background Array
+   */
+
+  sprites['background'] = loadImage(`Sprites/Background/Background-${floor(random(1,4))}.png`)
+ 
+ 
+
+  //   for(let i = 1; i <= 4; i++){
+  //       sprites.background.push(
+  //         loadImage(`Sprites/Background/Background-${i}.png`)
+  //       )
+  //   }
+
+  //******************************************************************************* */
+  /**
    * Sprite PowerUp
    */
 
@@ -52,8 +67,11 @@ function preload() {
     wingman: loadImage(`Sprites/PowerUps/images/wingman.png`),
     coin: loadImage(`Sprites/PowerUps/images/coin.png`),
     straight: loadImage(`Sprites/PowerUps/images/straight_gun.png`),
-    diagonal: loadImage(`Sprites/PowerUps/images/diagonal_gun.png`),
-    shield: loadImage(`Sprites/PowerUps/images/shield.png`)
+    // diagonal: loadImage(`Sprites/PowerUps/images/diagonal_gun.png`),
+    shield: [
+      loadImage(`Sprites/PowerUps/images/shield.png`),
+      loadImage(`Sprites/PowerUps/images/shieldOrb.png`)
+    ]
   };
 
   //******************************************************************************* */
@@ -79,17 +97,28 @@ function preload() {
   }
   //******************************************************************************* */
 
+  sounds["missile"] = loadSound(`Sound Effects/Missile_Launch.mp3`);
+
   sounds["powerUp"] = {
     health: loadSound(`Sound Effects/Power_Health.mp3`),
     weapon: loadSound(`Sound Effects/Power_Weapon.mp3`)
   };
 }
 
+//******************************************************************************* */
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight, false);
+}
+//******************************************************************************* */
+
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
+  background(100);
 
-  ship = new Ship();
+  hud = new HUD();
   healthBar = new HealthBar();
+  ship = new Ship();
 
   for (let i = 0; i < 10; i++) {
     aliens[i] = new Alien(i * 60 + 60, 150);
@@ -107,28 +136,24 @@ function setup() {
     let aI = floor(random(0, aliens.length));
     let pI = floor(random(0, powers.length));
     power_up = new PowerUp(aliens[aI].x, aliens[aI].y, powers[pI]);
-  }, 5000);
-}
-
-//******************************************************************************* */
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight, false);
+  }, 90000);
 }
 
 //******************************************************************************* */
 
 function draw() {
-  background(51);
+  imageMode(CENTER);
+  image(sprites.background, width / 2, height / 2, width, height);
 
   ship.show(sprites.ship);
+  hud.show(ship.score, ship.level, null, ship.high_score);
   healthBar.show(ship.health);
 
   var edge = false;
 
   if (frameCount % 100 === 0) {
     if (aliens[index]) {
-      let laser = new EnemyLaser(aliens[index].x, aliens[index].y);
+      let laser = new EnemyLaser(aliens[index]);
       aliens[index].addLaser(laser, sounds.laser[1]);
     }
   }
@@ -141,7 +166,7 @@ function draw() {
     aliens[i].show(sprites.aliens[1]);
     aliens[i].move();
 
-    if (aliens[i].x > width || aliens[i].x < 0) {
+    if (aliens[i].x > width - 40 || aliens[i].x < 40) {
       edge = true;
     }
   }
@@ -169,15 +194,13 @@ function draw() {
       }
 
       if (aliens[i].alienLasers.hits(ship)) {
-        var animated = new Sprite(
-          sprites.explosion,
-          aliens[i].alienLasers,
-          "laser"
-        );
+        var animated = new Sprite(sprites.explosion, ship, "ship");
         aliens[i].alienLasers = undefined;
         sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
-        ship.damage();
+        if (!ship.shield) {
+          ship.damage();
+        }
       } else if (aliens[i].alienLasers.offScreen()) {
         aliens[i].alienLasers = undefined;
       }
@@ -205,6 +228,8 @@ function draw() {
         lasers[i].remove();
         sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
+        ship.score = ship.score + 2;
+        ship.high_score = ship.high_score + 2;
       }
     }
   }
@@ -212,6 +237,39 @@ function draw() {
   for (let i = lasers.length - 1; i >= 0; i--) {
     if (lasers[i].toDelete) {
       lasers.splice(i, 1);
+    }
+  }
+
+  //******************************************************************************* */
+
+  /**
+   * Missiles For Loop
+   */
+
+  for (let i = 0; i < missiles.length; i++) {
+    missiles[i].show(sprites.missile);
+    missiles[i].move();
+    missiles[i].offScreen();
+
+    for (let j = 0; j < aliens.length; j++) {
+      if (missiles[i].hits(aliens[j])) {
+        var animated = new Sprite(sprites.explosion, aliens[j], "alien");
+        aliens[j].remove();
+        if (aliens[j].toDelete) {
+          aliens.splice(j, 1);
+        }
+        missiles[i].remove();
+        sounds.explosion[Math.floor(random(0, 2))].play();
+        animated.show();
+        ship.score = ship.score + 20;
+        ship.high_score = ship.high_score + 20;
+      }
+    }
+  }
+
+  for (let i = missiles.length - 1; i >= 0; i--) {
+    if (missiles[i].toDelete) {
+      missiles.splice(i, 1);
     }
   }
 
@@ -239,10 +297,11 @@ function draw() {
    * Checking for Players Health
    */
 
-  //   if (!ship.health) {
-  //     //    GameOver()
-  //     ship.health = 400;
-  //   }
+  if (!ship.health) {
+    //    GameOver()
+    ship.health = 400;
+    ship.score = 0;
+  }
 
   //******************************************************************************* */
 
@@ -263,15 +322,19 @@ function draw() {
         case "straight":
           sounds.powerUp.weapon.play();
           break;
-        case "diagonal":
-          sounds.powerUp.weapon.play();
-          break;
+        // case "diagonal":
+        //   sounds.powerUp.weapon.play();
+        //   break;
         case "missile":
+          hud.special = `Missiles`;
+          hud.number = 10;
+          missile_amount = 10;
           sounds.powerUp.weapon.play();
           break;
 
-          case "shield":
-          sounds.powerUp.weapon.play();
+        case "shield":
+          ship.shield = true;
+          sounds.powerUp.health.play();
           break;
         default:
           console.log(power_up.typePowerUp);
@@ -282,6 +345,13 @@ function draw() {
     } else if (power_up.offScreen()) {
       power_up = undefined;
     }
+  }
+
+  if (ship.shield) {
+    ship.showShield(sprites.powerUp.shield[1]);
+    window.setTimeout(function() {
+      ship.shield = false;
+    }, 10000);
   }
 
   //******************************************************************************* */
@@ -296,6 +366,12 @@ function draw() {
     }
   }
   //******************************************************************************* */
+
+  if (missile_amount === 0) {
+    hud.number = "";
+    hud.special = "None";
+    missile_amount = 0;
+  }
 }
 
 function GameOver() {
@@ -304,7 +380,7 @@ function GameOver() {
 
 function keyPressed() {
   if (key === " " && !paused) {
-    var laser = new Laser(ship.x, height - 60);
+    var laser = new Laser(ship);
     lasers.push(laser);
     sounds.laser[0].play();
   } else if (key === "p") {
@@ -314,5 +390,13 @@ function keyPressed() {
   } else if (key === "r") {
     paused = false;
     frameRate(60);
+  } else if (key === "z") {
+    if (missile_amount > 0) {
+      var missile = new Missile(ship);
+      missiles.push(missile);
+      sounds.missile.play();
+      hud.number--;
+    }
+    missile_amount--;
   }
 }
