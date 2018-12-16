@@ -1,7 +1,6 @@
 var ship, canvas, index, healthBar, power_up, hud;
 var paused = false;
-//var init = false;
-//var release = false;
+var activated = false;
 var missile_amount = 0;
 var aliens = [];
 var lasers = [];
@@ -45,9 +44,9 @@ function preload() {
    *  Background Array
    */
 
-  sprites['background'] = loadImage(`Sprites/Background/Background-${floor(random(1,4))}.png`)
- 
- 
+  sprites["background"] = loadImage(
+    `Sprites/Background/Background-${floor(random(1, 4))}.png`
+  );
 
   //   for(let i = 1; i <= 4; i++){
   //       sprites.background.push(
@@ -108,7 +107,7 @@ function preload() {
 //******************************************************************************* */
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight, false);
+  resizeCanvas(windowWidth, windowHeight, true);
 }
 //******************************************************************************* */
 
@@ -136,7 +135,7 @@ function setup() {
     let aI = floor(random(0, aliens.length));
     let pI = floor(random(0, powers.length));
     power_up = new PowerUp(aliens[aI].x, aliens[aI].y, powers[pI]);
-  }, 90000);
+  }, 4500);
 }
 
 //******************************************************************************* */
@@ -194,7 +193,7 @@ function draw() {
       }
 
       if (aliens[i].alienLasers.hits(ship)) {
-        var animated = new Sprite(sprites.explosion, ship, "ship");
+        var animated = new Sprite(sprites.explosion, ship, "ship", ship.shield);
         aliens[i].alienLasers = undefined;
         sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
@@ -229,7 +228,10 @@ function draw() {
         sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         ship.score = ship.score + 2;
-        ship.high_score = ship.high_score + 2;
+        if(ship.score > ship.high_score){
+            ship.high_score = ship.high_score + 2;
+        }
+        
       }
     }
   }
@@ -262,7 +264,9 @@ function draw() {
         sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         ship.score = ship.score + 20;
-        ship.high_score = ship.high_score + 20;
+        if(ship.score > ship.high_score){
+            ship.high_score = ship.high_score + 20;
+        }
       }
     }
   }
@@ -385,8 +389,8 @@ function keyPressed() {
     sounds.laser[0].play();
   } else if (key === "p") {
     paused = true;
-    // sounds.song.stop();
     frameRate(0);
+    // sounds.song.stop();
   } else if (key === "r") {
     paused = false;
     frameRate(60);

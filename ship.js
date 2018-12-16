@@ -1,6 +1,6 @@
 function Ship() {
-  this.x = width / 2;
-  this.y = height - 60
+  this.x = windowWidth / 2;
+  this.y = windowHeight - 60
   this.r = 30
   this.shield = false
   this.health = 400
