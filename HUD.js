@@ -5,6 +5,8 @@ class HUD {
         this.number = ''
     }
   show(score, level, health, highscore, special) {
+    this.healthBar = new HealthBar();
+    this.healthBar.show(health);
     this.LeftHUD(level, special);
     this.RightHUD(score, highscore);
   }

@@ -1,4 +1,4 @@
-var ship, canvas, index, healthBar, power_up, hud;
+var ship, canvas, index, power_up, hud;
 var paused = false;
 var activated = false;
 var missile_amount = 0;
@@ -114,9 +114,7 @@ function windowResized() {
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
   background(100);
-
   hud = new HUD();
-  healthBar = new HealthBar();
   ship = new Ship();
 
   for (let i = 0; i < 10; i++) {
@@ -135,7 +133,7 @@ function setup() {
     let aI = floor(random(0, aliens.length));
     let pI = floor(random(0, powers.length));
     power_up = new PowerUp(aliens[aI].x, aliens[aI].y, powers[pI]);
-  }, 4500);
+  }, 45000);
 }
 
 //******************************************************************************* */
@@ -145,8 +143,8 @@ function draw() {
   image(sprites.background, width / 2, height / 2, width, height);
 
   ship.show(sprites.ship);
-  hud.show(ship.score, ship.level, null, ship.high_score);
-  healthBar.show(ship.health);
+  hud.show(ship.score, ship.level,ship.health, ship.high_score);
+ 
 
   var edge = false;
 
