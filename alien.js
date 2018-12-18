@@ -7,7 +7,7 @@ function Alien(x, y) {
   this.toDelete = false;
   this.alienLasers;
   this.alienLasers_Sound;
-//   this.powerUp;
+
 
   this.show = function(sprite) {
     imageMode(CENTER);

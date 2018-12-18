@@ -1,12 +1,17 @@
-var ship, canvas, index, power_up, hud;
-var paused = false;
-var activated = false;
-var missile_amount = 0;
-var aliens = [];
-var lasers = [];
-var missiles = [];
-var sounds = {};
-var sprites = {};
+var ship,
+  canvas,
+  index,
+  power_up,
+  hud,
+  muted = false,
+  paused = false,
+  activated = false,
+  missile_amount = 0,
+  aliens = [],
+  lasers = [],
+  missiles = [],
+  sounds = {},
+  sprites = {};
 
 function preload() {
   sprites["ship"] = loadImage("Sprites/Spaceships/Player Ships/starship.svg");
@@ -143,8 +148,7 @@ function draw() {
   image(sprites.background, width / 2, height / 2, width, height);
 
   ship.show(sprites.ship);
-  hud.show(ship.score, ship.level,ship.health, ship.high_score);
- 
+  hud.show(ship.score, ship.level, ship.health, ship.high_score);
 
   var edge = false;
 
@@ -186,14 +190,18 @@ function draw() {
       aliens[i].alienLasers.move();
 
       if (aliens[i].alienLasers_Sound) {
-        aliens[i].alienLasers_Sound.play();
+        muted
+          ? aliens[i].alienLasers_Sound.pause()
+          : aliens[i].alienLasers_Sound.play();
         aliens[i].alienLasers_Sound = undefined;
       }
 
       if (aliens[i].alienLasers.hits(ship)) {
         var animated = new Sprite(sprites.explosion, ship, "ship", ship.shield);
         aliens[i].alienLasers = undefined;
-        sounds.explosion[Math.floor(random(0, 2))].play();
+        muted
+          ? sounds.explosion[Math.floor(random(0, 2))].pause()
+          : sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         if (!ship.shield) {
           ship.damage();
@@ -223,13 +231,14 @@ function draw() {
           aliens.splice(j, 1);
         }
         lasers[i].remove();
-        sounds.explosion[Math.floor(random(0, 2))].play();
+        muted
+          ? sounds.explosion[Math.floor(random(0, 2))].pause()
+          : sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         ship.score = ship.score + 2;
-        if(ship.score > ship.high_score){
-            ship.high_score = ship.high_score + 2;
+        if (ship.score > ship.high_score) {
+          ship.high_score = ship.high_score + 2;
         }
-        
       }
     }
   }
@@ -259,11 +268,13 @@ function draw() {
           aliens.splice(j, 1);
         }
         missiles[i].remove();
-        sounds.explosion[Math.floor(random(0, 2))].play();
+        muted
+          ? sounds.explosion[Math.floor(random(0, 2))].pause()
+          : sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         ship.score = ship.score + 20;
-        if(ship.score > ship.high_score){
-            ship.high_score = ship.high_score + 20;
+        if (ship.score > ship.high_score) {
+          ship.high_score = ship.high_score + 20;
         }
       }
     }
@@ -319,10 +330,12 @@ function draw() {
       switch (power_up.typePowerUp) {
         case "health":
           ship.health = 400;
-          sounds.powerUp.health.play();
+          muted ? sounds.powerUp.health.pause() : sounds.powerUp.health.play();
+
           break;
         case "straight":
-          sounds.powerUp.weapon.play();
+          muted ? sounds.powerUp.weapon.pause() : sounds.powerUp.weapon.play();
+
           break;
         // case "diagonal":
         //   sounds.powerUp.weapon.play();
@@ -331,12 +344,12 @@ function draw() {
           hud.special = `Missiles`;
           hud.number = 10;
           missile_amount = 10;
-          sounds.powerUp.weapon.play();
+          muted ? sounds.powerUp.weapon.pause() : sounds.powerUp.weapon.play();
           break;
 
         case "shield":
           ship.shield = true;
-          sounds.powerUp.health.play();
+          muted ? sounds.powerUp.health.pause() : sounds.powerUp.health.play();
           break;
         default:
           console.log(power_up.typePowerUp);
@@ -384,7 +397,7 @@ function keyPressed() {
   if (key === " " && !paused) {
     var laser = new Laser(ship);
     lasers.push(laser);
-    sounds.laser[0].play();
+    muted ? sounds.laser[0].pause() : sounds.laser[0].play();
   } else if (key === "p") {
     paused = true;
     frameRate(0);
@@ -396,9 +409,12 @@ function keyPressed() {
     if (missile_amount > 0) {
       var missile = new Missile(ship);
       missiles.push(missile);
-      sounds.missile.play();
+      muted ? sounds.missile.pause() : sounds.missile.play();
+
       hud.number--;
     }
     missile_amount--;
+  } else if (key === "m") {
+    muted = !muted
   }
 }
