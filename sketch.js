@@ -3,7 +3,7 @@ var ship,
   index,
   power_up,
   hud,
-  muted = false,
+  muted = true,
   paused = false,
   activated = false,
   missile_amount = 0,
@@ -118,7 +118,7 @@ function windowResized() {
 
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
-  background(100);
+  // background(100);
   hud = new HUD();
   ship = new Ship();
 
@@ -144,11 +144,11 @@ function setup() {
 //******************************************************************************* */
 
 function draw() {
-  imageMode(CENTER);
-  image(sprites.background, width / 2, height / 2, width, height);
-
+  // imageMode(CENTER);
+  // image(sprites.background, width / 2, height / 2, width, height);
+  background(51);
   ship.show(sprites.ship);
-  hud.show(ship.score, ship.level, ship.health, ship.high_score);
+  hud.show(ship);
 
   var edge = false;
 
@@ -169,6 +169,10 @@ function draw() {
 
     if (aliens[i].x > width - 40 || aliens[i].x < 40) {
       edge = true;
+    }
+
+    if(aliens[i].offScreen()){
+      aliens.splice(i, 1);
     }
   }
 
@@ -227,15 +231,17 @@ function draw() {
       if (lasers[i].hits(aliens[j])) {
         var animated = new Sprite(sprites.explosion, aliens[j], "alien");
         aliens[j].remove();
-        if (aliens[j].toDelete) {
-          aliens.splice(j, 1);
-        }
         lasers[i].remove();
         muted
           ? sounds.explosion[Math.floor(random(0, 2))].pause()
           : sounds.explosion[Math.floor(random(0, 2))].play();
         animated.show();
         ship.score = ship.score + 2;
+
+        if (aliens[j].toDelete) {
+          aliens.splice(j, 1);
+        }
+
         if (ship.score > ship.high_score) {
           ship.high_score = ship.high_score + 2;
         }
@@ -311,7 +317,7 @@ function draw() {
    */
 
   if (!ship.health) {
-    //    GameOver()
+    //GameOver()
     ship.health = 400;
     ship.score = 0;
   }
@@ -390,22 +396,28 @@ function draw() {
 }
 
 function GameOver() {
-  alert("Game Over");
+  // alert("Game Over");
 }
 
 function keyPressed() {
-  if (key === " " && !paused) {
+  if (key === "z" && !paused) {
     var laser = new Laser(ship);
     lasers.push(laser);
     muted ? sounds.laser[0].pause() : sounds.laser[0].play();
   } else if (key === "p") {
     paused = true;
+    textAlign(CENTER);
+    textSize(35);
+    fill(255);
+    text(`PAUSED`, width / 2, height / 2);
+    // noLoop();
     frameRate(0);
     // sounds.song.stop();
   } else if (key === "r") {
     paused = false;
+    // loop();
     frameRate(60);
-  } else if (key === "z") {
+  } else if (key === "x") {
     if (missile_amount > 0) {
       var missile = new Missile(ship);
       missiles.push(missile);
@@ -415,6 +427,6 @@ function keyPressed() {
     }
     missile_amount--;
   } else if (key === "m") {
-    muted = !muted
+    muted = !muted;
   }
 }

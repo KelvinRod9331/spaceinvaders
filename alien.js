@@ -8,7 +8,6 @@ function Alien(x, y) {
   this.alienLasers;
   this.alienLasers_Sound;
 
-
   this.show = function(sprite) {
     imageMode(CENTER);
     image(sprite, this.x, this.y, this.r * 2, this.r * 2);
@@ -20,7 +19,7 @@ function Alien(x, y) {
 
   this.addLaser = function(laser, sound) {
     this.alienLasers = laser;
-    this.alienLasers_Sound = sound
+    this.alienLasers_Sound = sound;
   };
 
   this.shiftDown = function() {
@@ -32,10 +31,10 @@ function Alien(x, y) {
     this.x = this.x + this.xdir;
   };
 
-  //   this.offScreen = function() {
-  //     if (this.x > ) {
-  //       return true;
-  //     }
-  //     return false;
-  //   };
+  this.offScreen = function() {
+    if (this.y > height - 110) {
+      return true;
+    }
+    return false;
+  };
 }
