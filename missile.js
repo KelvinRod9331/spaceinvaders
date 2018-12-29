@@ -7,7 +7,7 @@ function Missile(ship) {
   
     this.show = function(sprite) {
       imageMode(CENTER);
-      image(sprite, this.x, this.y, this.r , 40);
+      image(sprite, this.x, this.y, 30 , 40);
     };
   
     this.remove = function() {
@@ -15,7 +15,7 @@ function Missile(ship) {
     };
   
     this.hits = function(alien) {
-      var d = dist(this.x, this.y, alien.x, alien.y);
+      var d = dist(this.x, this.y, alien.position.x, alien.position.y);
       if (d < this.r + alien.r) {
         return true;
       } else {

@@ -2,8 +2,8 @@ class Sprite {
   constructor(animation, obj, type, activated) {
     this.animation = animation;
     this.len = animation.length;
-    this.x = obj.x;
-    this.y = obj.y;
+    this.x = obj.x ? obj.x : obj.position.x;
+    this.y = obj.y ? obj.y : obj.position.y;
     this.type = type
     this.activated = activated
   }

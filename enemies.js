@@ -1,7 +1,0 @@
-class Enemies{
-    constructor(alien){
-
-    }
-
-
-}

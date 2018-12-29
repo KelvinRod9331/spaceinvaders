@@ -1,0 +1,130 @@
+for enemies loop
+
+
+
+
+
+        // if (lasers[i].hits(e[j])) {
+        //   var animated = new Sprite(sprites.explosion, enemies[enemies.length-1][j], "alien");
+        //   enemies[enemies.length-1][j].remove();
+        //   lasers[i].remove();
+        //   muted
+        //     ? sounds.explosion[Math.floor(random(0, 2))].pause()
+        //     : sounds.explosion[Math.floor(random(0, 2))].play();
+        //   animated.show();
+        //   ship.score = ship.score + 2;
+
+        //   if (enemies[enemies.length-1][j].toDelete) {
+        //     enemies[enemies.length-1].splice(j, 1);
+        //   }
+
+        //   if (ship.score > ship.high_score) {
+        //     ship.high_score = ship.high_score + 2;
+        //   }
+        // }
+
+        // for (let j = enemies.length - 1; j >= 0; j--) {
+        //   if (enemies[j].length !== 0) {
+        //     for (let x = 0; x < enemies[j].length; x++) {
+        //       if (lasers[i].hits(enemies[j][x])) {
+        //         var animated = new Sprite(
+        //           sprites.explosion,
+        //           enemies[j][x],
+        //           "alien"
+        //         );
+        //         enemies[j][x].remove();
+        //         lasers[i].remove();
+        //         muted
+        //           ? sounds.explosion[Math.floor(random(0, 2))].pause()
+        //           : sounds.explosion[Math.floor(random(0, 2))].play();
+        //         animated.show();
+        //         ship.score = ship.score + 2;
+  
+        //         if (enemies[j][x].toDelete) {
+        //           enemies[j].splice(x, 1);
+        //         }
+  
+        //         if (ship.score > ship.high_score) {
+        //           ship.high_score = ship.high_score + 2;
+        //         }
+        //       }
+        //     }
+        //   } else {
+        //     enemies.splice(j, 1);
+        //   }
+        // }
+
+
+This is the code used for the lasers for the random enemies
+
+if (frameCount % 100 === 0) {
+    // let rI1 = floor(random(0, enemies.length))
+    // let rI2 = floor(random(0, enemies.length))
+    // let index1 = floor(random(0, enemies[rI1].length));
+    // let index2 = floor(random(0, enemies[rI2].length));
+
+    if (ship.level == 1) {
+      for(let i = 1; i <= 3; i++){
+        let rI1 = floor(random(0, enemies.length))
+        let index1 = floor(random(0, enemies[rI1].length));
+
+        if (enemies[rI1][index1]) {
+          const laser1 = new EnemyLaser(enemies[rI1][index1]);
+          // const laser2 = new EnemyLaser(enemies[rI2][index2]);
+          enemies[rI1][index1].addLaser(laser1, sounds.laser[1]);
+          // enemies[rI2][index2].addLaser(laser2, sounds.laser[1]);
+        }
+      }
+    }
+
+    // if(enemies[index]){
+    //   const laser = new EnemyLaser(enemies[index]);
+    //   enemies[index].addLaser(laser, sounds.laser[1]);
+    // }
+  }
+
+
+
+  ----------------------------------  ----------------------------------  ----------------------------------
+  for (let i = 0; i < lasers.length; i++) {
+    lasers[i].show(sprites.laser);
+    lasers[i].move();
+    lasers[i].offScreen();
+
+    if (ship.level == 1) {
+      enemies.reverse().forEach((e, ind) => {
+        if (e.length !== 0) {
+          for (let x = 0; x < e.length; x++) {
+            if (lasers[i].hits(e[x])) {
+              var animated = new Sprite(sprites.explosion, e[x], "alien");
+              e[x].remove();
+              lasers[i].remove();
+              muted
+                ? sounds.explosion[Math.floor(random(0, 2))].pause()
+                : sounds.explosion[Math.floor(random(0, 2))].play();
+              animated.show();
+              ship.score = ship.score + 2;
+
+              if (e[x].toDelete) {
+                e.splice(x, 1);
+              }
+
+              if (ship.score > ship.high_score) {
+                ship.high_score = ship.high_score + 2;
+              }
+            }
+          }
+        } else {
+          enemies.splice(ind, 1);
+        }
+      });
+    }
+  }
+
+DeathGlider =>> NOTE{
+  ADD POINTS FOR EVERY TIME THEY MISS A LASER AND IF THEY DONT MISS IT THEY DONT GET POINTS FOR THAT LASER BECAUSE IT WILL ALSO BE 
+  A GAME ABOUT MISSING LASERS TO INCREASE THE DIFFULACTY!
+
+  ALSO DOWNLOAD THE WHOLE DISCOGRAPHY OF HPOSIN LMAO NIGGA IS POPPING!
+
+}

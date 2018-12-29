@@ -1,7 +1,7 @@
 function Ship() {
   this.x = windowWidth / 2;
-  this.y = windowHeight - 60
-  this.r = 30
+  this.y = windowHeight - 30
+  this.r = 25
   this.shield = false
   this.health = 400
   this.score = 0
@@ -24,13 +24,13 @@ function Ship() {
 
   this.offScreen = function() {
     if (this.x < this.r) {
-      return "left";
+      this.move(1)
     } else if (this.x > width - this.r) {
-      return "right";
+      this.move(-1)
     }
   };
 
-  this.damage = function(){
-    this.health -= 40
+  this.damage = function(d){
+    this.health -= d
   }
 }
