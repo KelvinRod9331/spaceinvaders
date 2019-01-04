@@ -4,12 +4,29 @@ function Levels() {
       for (let j = 0; j < enemies[i].length; j++) {
         enemies[i][j].show(sprites.enemies.xStarFighter);
         enemies[i][j].move();
+        enemies[i][j].screenEdge();
 
         if (
           enemies[i][j].position.x > width - 40 ||
           enemies[i][j].position.x < 40
         ) {
           edge = true;
+        }
+        if (enemies[i][j].collided(ship)) {
+          enemies[i][j].remove();
+          var animated = new Sprite(
+            sprites.explosion,
+            ship,
+            "ship",
+            ship.shield
+          );
+          if (!ship.shield) {
+            muted
+              ? sounds.explosion[Math.floor(random(0, 2))].pause()
+              : sounds.explosion[Math.floor(random(0, 2))].play();
+            animated.show();
+            ship.damage(400);
+          }
         }
 
         // if (enemies[i][j].offScreen()) {
@@ -32,13 +49,6 @@ function Levels() {
         if (enemies[i][j].alienLasers) {
           enemies[i][j].alienLasers.show(sprites.laser);
           enemies[i][j].alienLasers.move();
-
-          if (enemies[i][j].alienLasers_Sound) {
-            muted
-              ? enemies[i][j].alienLasers_Sound.pause()
-              : enemies[i][j].alienLasers_Sound.play();
-            enemies[i][j].alienLasers_Sound = undefined;
-          }
 
           if (enemies[i][j].alienLasers.hits(ship)) {
             var animated = new Sprite(
@@ -63,6 +73,10 @@ function Levels() {
     }
 
     lasers.forEach(laser => {
+      if (ship.wingman_activated) {
+        laser.wingman(sprites.laser);
+      }
+
       laser.show(sprites.laser);
       laser.move();
       laser.offScreen();
@@ -137,11 +151,6 @@ function Levels() {
         ufo.alienLasers.show(sprites.laser);
         ufo.alienLasers.move();
 
-        if (ufo.alienLasers_Sound) {
-          muted ? ufo.alienLasers_Sound.pause() : ufo.alienLasers_Sound.play();
-          ufo.alienLasers_Sound = undefined;
-        }
-
         if (ufo.alienLasers.hits(ship)) {
           var animated = new Sprite(
             sprites.explosion,
@@ -203,7 +212,7 @@ function Levels() {
           ship.score += 20;
 
           if (ufo.toDelete) {
-            ufos.splice(ufo, 1);
+            ufos.splice(ind, 1);
           }
         }
       });
@@ -269,13 +278,6 @@ function Levels() {
         if (deathGliders[i][j].alienLasers) {
           deathGliders[i][j].alienLasers.show(sprites.laser);
           deathGliders[i][j].alienLasers.move();
-
-          if (deathGliders[i][j].alienLasers_Sound) {
-            muted
-              ? deathGliders[i][j].alienLasers_Sound.pause()
-              : deathGliders[i][j].alienLasers_Sound.play();
-            deathGliders[i][j].alienLasers_Sound = undefined;
-          }
 
           if (deathGliders[i][j].alienLasers.hits(ship)) {
             var animated = new Sprite(
@@ -358,40 +360,33 @@ function Levels() {
     }
   };
 
-
-  this.vStarFighters = function(enemies){
-    enemies.forEach(e => {
+  this.vStarFighters = function(enemies) {
+    enemies.forEach((e, ind) => {
       e.show(sprites.enemies.vStarFighter);
       e.kamikaze(ship);
-      e.update()
+      e.update();
       e.screenEdge();
-      e.health_bar()
+      e.health_bar();
 
       if (e.collided(ship)) {
         e.remove();
-        var animated = new Sprite(
-          sprites.explosion,
-          ship,
-          "ship",
-          ship.shield
-        );
+        var animated = new Sprite(sprites.explosion, ship, "ship", ship.shield);
         if (!ship.shield) {
           muted
             ? sounds.explosion[Math.floor(random(0, 2))].pause()
             : sounds.explosion[Math.floor(random(0, 2))].play();
           animated.show();
-          ship.damage(200);
+          ship.damage(100);
+        }
+
+        if (e.toDelete) {
+          enemies.splice(ind, 1);
         }
       }
 
       if (e.alienLasers) {
         e.alienLasers.show(sprites.laser);
         e.alienLasers.move();
-
-        if (e.alienLasers_Sound) {
-          muted ? e.alienLasers_Sound.pause() : e.alienLasers_Sound.play();
-          e.alienLasers_Sound = undefined;
-        }
 
         if (e.alienLasers.hits(ship)) {
           var animated = new Sprite(
@@ -423,9 +418,9 @@ function Levels() {
         if (laser.hits(e)) {
           var animated = new Sprite(sprites.explosion, e, "alien");
           e.damaged(laser.power);
-          
-          if(e.health <= 0){
-            e.remove()
+
+          if (e.health <= 0) {
+            e.remove();
           }
           laser.remove();
           muted
@@ -458,10 +453,171 @@ function Levels() {
           ship.score += 20;
 
           if (e.toDelete) {
-            enemies.splice(e, 1);
+            enemies.splice(ind, 1);
           }
         }
       });
     });
-  }
+  };
+
+  this.eStarFighters = function(enemies, asteroids) {
+    
+    asteroids.forEach((asteroid, ind) => {
+      asteroid.show(sprites.enemies.asteroid)
+      asteroid.update()
+      asteroid.screenEdge()
+
+      if(ship.collided(asteroid)){
+        var animated = new Sprite(
+          sprites.explosion,
+          ship,
+          "ship",
+          ship.shield
+        );
+        muted
+            ? sounds.explosion[Math.floor(random(0, 2))].pause()
+            : sounds.explosion[Math.floor(random(0, 2))].play();
+          animated.show();
+          if (!ship.shield) {
+            if(asteroid.r * 4 > ship.r * 2){
+              ship.damage(400);
+            }else{
+              ship.damage(100);
+            }
+          }    
+        asteroids.splice(ind,1)
+      }
+    })
+
+    enemies.forEach((e, ind) => {
+      e.show(sprites.enemies.eStarFighter);
+      e.update();
+      e.screenEdge();
+      e.health_bar();
+      e.turn();
+
+      if (e.switch_movement) {
+        e.setRotation(0.1);
+
+        setTimeout(() => {
+          e.switch_movement = false;
+        }, 100);
+
+      } else {
+        e.setRotation(0);
+      }
+
+      if (e.collided(ship)) {
+        e.remove();
+        var animated = new Sprite(sprites.explosion, ship, "ship", ship.shield);
+        if (!ship.shield) {
+          muted
+            ? sounds.explosion[Math.floor(random(0, 2))].pause()
+            : sounds.explosion[Math.floor(random(0, 2))].play();
+          animated.show();
+          ship.damage(100);
+        }
+
+        if (e.toDelete) {
+          enemies.splice(ind, 1);
+        }
+      }
+
+      if (e.alienLasers) {
+        e.alienLasers.show(sprites.laser);
+        e.alienLasers.move();
+
+        if (e.alienLasers.hits(ship)) {
+          var animated = new Sprite(
+            sprites.explosion,
+            ship,
+            "ship",
+            ship.shield
+          );
+          e.alienLasers = undefined;
+          muted
+            ? sounds.explosion[Math.floor(random(0, 2))].pause()
+            : sounds.explosion[Math.floor(random(0, 2))].play();
+          animated.show();
+          if (!ship.shield) {
+            ship.damage(e.power);
+          }
+        } else if (e.alienLasers.offScreen()) {
+          e.alienLasers = undefined;
+        }
+      }
+    });
+
+
+
+    lasers.reverse().forEach((laser, i) => {
+      laser.show(sprites.laser);
+      laser.move();
+      laser.offScreen();
+
+      enemies.forEach((e, i) => {
+        if (laser.hits(e)) {
+          var animated = new Sprite(sprites.explosion, e, "alien");
+          e.damaged(laser.power);
+
+          if (e.health <= 0) {
+            e.remove();
+          }
+
+          laser.remove();
+          animated.show();
+          muted
+          ? sounds.explosion[Math.floor(random(0, 2))].pause()
+          : sounds.explosion[Math.floor(random(0, 2))].play();
+          ship.score += 10;
+
+          if (e.toDelete) {
+            enemies.splice(i, 1);
+          }
+        }
+      });
+  
+      asteroids.reverse().forEach((asteroid, j) => {
+        if (laser.hits(asteroid)) {
+          var animated = new Sprite(sprites.explosion, asteroid, "alien");
+          if (asteroid.r > 10) {
+            var pieces = asteroid.collision();
+             asteroids.push(...pieces);
+          } else {
+            ship.score += 5;
+          }
+          animated.show();
+          asteroids.splice(j, 1);
+          lasers.splice(i, 1);
+        }
+      });
+  
+      if (laser.offScreen()) {
+        lasers.splice(i, 1);
+      }
+    });
+
+    missiles.forEach(missile => {
+      missile.show(sprites.missile);
+      missile.move();
+      missile.offScreen();
+
+      enemies.forEach((e, ind) => {
+        if (missile.hits(e)) {
+          var animated = new Sprite(sprites.explosion, e, "alien");
+          e.remove();
+          missile.remove();
+          muted
+            ? sounds.explosion[Math.floor(random(0, 2))].pause()
+            : sounds.explosion[Math.floor(random(0, 2))].play();
+          animated.show();
+          ship.score += 20;
+
+          if (e.toDelete) {
+            enemies.splice(ind, 1);
+          }
+        }
+      });
+    });
+  };
 }

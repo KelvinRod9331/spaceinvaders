@@ -24,7 +24,7 @@ class PowerUp{
       };
     
      move() {
-        this.y = this.y + 7 ;
+        this.y = this.y + 4 ;
       };
     
       offScreen() {

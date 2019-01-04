@@ -56,7 +56,7 @@ function DeathGlider(x, y) {
     if (
       this.position.x > ship.x - ship.r &&
       this.position.x < ship.x + ship.r &&
-      this.position.y > ship.y - 100
+      this.position.y > ship.y - 200
     ) {
       this.position.x = ship.x;
     }

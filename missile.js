@@ -2,7 +2,7 @@ function Missile(ship) {
     this.x = ship.x;
     this.y = ship.y - 10;
     this.r = 30
-    this.power = 10
+    this.power = 50
     this.toDelete = false;
   
     this.show = function(sprite) {

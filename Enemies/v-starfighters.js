@@ -1,5 +1,5 @@
 function vStarFighter() {
-  this.position = createVector(random(-width/2, width/2), -100);
+  this.position = createVector(random(0,width), -100);
   this.velocity = p5.Vector.random2D();
   this.velocity.mult(2);
   this.r = 15;
@@ -8,8 +8,7 @@ function vStarFighter() {
   this.toDelete = false;
   this.counter = 0
   this.alienLasers;
-  this.alienLasers_Sound;
-  this.power = 100;
+  this.power = 80;
   this.health = 50
 
   this.show = function(sprite) {
@@ -61,9 +60,8 @@ function vStarFighter() {
     this.toDelete = true;
   };
 
-  this.addLaser = function(laser, sound) {
+  this.addLaser = function(laser) {
     this.alienLasers = laser;
-    this.alienLasers_Sound = sound;
   };
 
   this.collided = function(ship) {

@@ -1,11 +1,11 @@
 function UFO() {
-  this.position = createVector(-50, random(height));
+  this.position = createVector(random(-width, width), random(-height));
   this.velocity = p5.Vector.random2D();
-  this.velocity.mult(2);
+  this.velocity.mult(2.3);
+  this.heading = random(0,10);
   this.r = 25;
   this.toDelete = false;
   this.alienLasers;
-  this.alienLasers_Sound;
   this.damage = 100;
 
   this.update = function() {
@@ -13,8 +13,13 @@ function UFO() {
   };
 
   this.show = function(sprite) {
+    this.heading += 0.01
     imageMode(CENTER);
-    image(sprite, this.position.x, this.position.y, this.r * 2, this.r * 2);
+    push();
+    translate(this.position.x, this.position.y);
+    rotate(this.heading + PI / 2);
+    image(sprite, 0, 0, this.r * 2, this.r * 2);
+    pop();
   };
 
   this.remove = function() {
@@ -30,9 +35,8 @@ function UFO() {
     }
   };
 
-  this.addLaser = function(laser, sound) {
+  this.addLaser = function(laser) {
     this.alienLasers = laser;
-    this.alienLasers_Sound = sound;
   };
 
   this.screenEdge = function() {

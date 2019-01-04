@@ -5,14 +5,25 @@ var ship,
   levels,
   powers,
   setIntervalID,
-  levelC = 1;
+  levelC = 2,
+  bossLC = 1,
+  livesC = 3,
+  playerDied = false,
+  highscore = 0,
+  newGameStarted = false,
+  gameIsOver = false;
   (newLevel = false),
-  (muted = true),
+  (muted = false),
   (paused = false),
   (activated = false),
-  (missile_amount = 0);
-(lasers = []), (enemies = []), (bosses = {});
-(missiles = []), (sounds = {}), (sprites = {});
+  (missile_amount = 0),
+  (lasers = []),
+  (enemies = []),
+  (missiles = []),
+  (asteroids = []),
+  (bosses = {}),
+  (sounds = {}),
+  (sprites = {});
 
 function preload() {
   sprites["ship"] = loadImage("Sprites/Spaceships/Player Ships/starship.svg");
@@ -28,7 +39,8 @@ function preload() {
     ufo: loadImage(`Sprites/Spaceships/Enemy Ships/ufo.png`),
     death_glider: loadImage(`Sprites/Spaceships/Enemy Ships/death-gliders.png`),
     vStarFighter: loadImage(`Sprites/Spaceships/Enemy Ships/vStarfighter.png`),
-    eStarFighter: loadImage(`Sprites/Spaceships/Enemy Ships/eStarfighter.png`)
+    eStarFighter: loadImage(`Sprites/Spaceships/Enemy Ships/eStarfighter.png`),
+    asteroid: loadImage(`Sprites/space_kit/asteroid.png`)
   };
 
   //******************************************************************************* */
@@ -66,12 +78,6 @@ function preload() {
   sprites["background"] = loadImage(
     `Sprites/Background/Background-${floor(random(1, 4))}.png`
   );
-
-  //   for(let i = 1; i <= 4; i++){
-  //       sprites.background.push(
-  //         loadImage(`Sprites/Background/Background-${i}.png`)
-  //       )
-  //   }
 
   //******************************************************************************* */
   /**
@@ -119,7 +125,14 @@ function preload() {
 
   sounds["powerUp"] = {
     health: loadSound(`Sound Effects/Power_Health.mp3`),
-    weapon: loadSound(`Sound Effects/Power_Weapon.mp3`)
+    weapon: loadSound(`Sound Effects/Power_Weapon.mp3`),
+    coin: loadSound(`Sound Effects/coin.mp3`),
+    wingman: loadSound(`Sound Effects/soldierintro.mp3`)
+  };
+
+  sounds["music"] = {
+    main: loadSound(`Sound Effects/Music/nebula.mp3`),
+    paused: loadSound(`Sound Effects/Music/suspense.mp3`)
   };
 
   powers = Object.keys(sprites.powerUp).map(function(key) {
@@ -136,7 +149,14 @@ function windowResized() {
 
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
+  if (levelC == 5) {
+    ship = new Ship2D();
+  } else {
+    ship = new Ship();
+  }
+
   hud = new HUD();
+  musicConfig();
   newGame();
   // background(100);
 }
@@ -151,35 +171,46 @@ function draw() {
   hud.show(ship);
 
   /* Ship Movements */
-  ship.show(sprites.ship);
-  ship.offScreen();
+  if(levelC == 5){
+    Ship2DRendering()
+  }else{
+    ship.show(sprites.ship);
+    ship.offScreen();
+    ship.lifeIndicator();
+    // ship.weapon_Gauge()
 
-  if (keyIsDown(RIGHT_ARROW)) {
-    ship.move(1);
-  } else if (keyIsDown(LEFT_ARROW)) {
-    ship.move(-1);
+    if (keyIsDown(RIGHT_ARROW)) {
+      ship.move(1);
+    } else if (keyIsDown(LEFT_ARROW)) {
+      ship.move(-1);
+    }
   }
+
+
+  
 
   if (enemies.length > 0) {
     if (frameCount % 100 == 0) {
       if (ship.level == 1 || ship.level == 3) {
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= 8; i++) {
           let row = floor(random(0, enemies.length));
           let column = floor(random(0, enemies[row].length));
           if (enemies[row][column]) {
             const laser = new EnemyLaser(enemies[row][column]);
-            enemies[row][column].addLaser(laser, sounds.laser[1]);
+            enemies[row][column].addLaser(laser);
           }
         }
-      } else if (ship.level == 2 || ship.level == 4) {
+        muted ? sounds.laser[1].pause() : sounds.laser[1].play();
+      } else if (ship.level == 2 || ship.level == 4 || ship.level == 5) {
         for (let i = 1; i <= 6; i++) {
           let index = floor(random(0, enemies.length));
           if (enemies[index]) {
-            const laser = new EnemyLaser(enemies[index]);
-            enemies[index].addLaser(laser, sounds.laser[1]);
+            const laser = ship.level == 5 ? new EnemyLaser2D(enemies[index]) : new EnemyLaser(enemies[index]);
+            enemies[index].addLaser(laser);
           }
         }
-      } 
+        muted ? sounds.laser[1].pause() : sounds.laser[1].play();
+      }
     }
 
     if (ship.level == 1) {
@@ -193,58 +224,19 @@ function draw() {
         var column = floor(random(0, enemies[row].length - 1));
         enemies[row][column].switch_movement = true;
       }
-    } else if(ship.level == 4){
-      levels.vStarFighters(enemies)
+    } else if (ship.level == 4) {
+      levels.vStarFighters(enemies);
+    } else if (ship.level == 5) {
+      levels.eStarFighters(enemies, asteroids);
+      if(frameCount % 200 == 0){
+        for(let i = 0; i < 5; i++){
+          var row = floor(random(0, enemies.length - 1));
+          enemies[row].switch_movement = true;
+        }
+      }
     }
+
   }
-
-  
-
-  //******************************************************************************* */
-
-  /**
-   * New Enemies (Test)
-   */
-
-  // enemies.forEach(enemy => {
-  //   enemy.show(sprites.enemies[2])
-  //   enemy.update()
-  //   enemy.screenEdge()
-  // })
-
-  //******************************************************************************* */
-
-  /**
-   * Enemies Laser Loop
-   */
-
-  // for (let i = enemies.length - 1; i >= 0; i--) {
-  //   if (enemies[i].alienLasers) {
-  //     enemies[i].alienLasers.show(sprites.laser);
-  //     enemies[i].alienLasers.move();
-
-  //     if (enemies[i].alienLasers_Sound) {
-  //       muted
-  //         ? enemies[i].alienLasers_Sound.pause()
-  //         : enemies[i].alienLasers_Sound.play();
-  //       enemies[i].alienLasers_Sound = undefined;
-  //     }
-
-  //     if (enemies[i].alienLasers.hits(ship)) {
-  //       var animated = new Sprite(sprites.explosion, ship, "ship", ship.shield);
-  //       enemies[i].alienLasers = undefined;
-  //       muted
-  //         ? sounds.explosion[Math.floor(random(0, 2))].pause()
-  //         : sounds.explosion[Math.floor(random(0, 2))].play();
-  //       animated.show();
-  //       if (!ship.shield) {
-  //         ship.damage();
-  //       }
-  //     } else if (enemies[i].alienLasers.offScreen()) {
-  //       enemies[i].alienLasers = undefined;
-  //     }
-  //   }
-  // }
 
   //******************************************************************************* */
 
@@ -275,11 +267,26 @@ function draw() {
   /*  Checking for Players Health and Score*/
 
   if (ship.health <= 0) {
+    ship.health = 0;
+    playerDied = true;
+  }
+
+  if (ship.lives <= 0) {
     GameOver();
+  }
+
+  if (playerDied) {
+    if (ship.lives >= 1) {
+      livesC--;
+      ship.health = 400;
+      playerDied = false;
+    }
+    ship.lives = livesC;
   }
 
   if (ship.score > ship.high_score) {
     ship.high_score = ship.score;
+    highscore = ship.high_score;
   }
 
   //******************************************************************************* */
@@ -297,15 +304,16 @@ function draw() {
         case "health":
           ship.health = 400;
           muted ? sounds.powerUp.health.pause() : sounds.powerUp.health.play();
-
           break;
-        case "straight":
-          muted ? sounds.powerUp.weapon.pause() : sounds.powerUp.weapon.play();
-
+        case "wingman":
+          ship.wingman_activated = true;
+          muted
+            ? sounds.powerUp.wingman.pause()
+            : sounds.powerUp.wingman.play();
           break;
         case "coin":
           ship.score += 500;
-          sounds.powerUp.weapon.play();
+          muted ? sounds.powerUp.coin.pause() : sounds.powerUp.coin.play();
           break;
         case "missile":
           hud.special = `Missiles`;
@@ -313,9 +321,14 @@ function draw() {
           missile_amount = 10;
           muted ? sounds.powerUp.weapon.pause() : sounds.powerUp.weapon.play();
           break;
-
         case "shield":
           ship.shield = true;
+          muted ? sounds.powerUp.health.pause() : sounds.powerUp.health.play();
+          break;
+
+        case "lifeUp":
+          livesC += 1;
+          ship.lives = livesC;
           muted ? sounds.powerUp.health.pause() : sounds.powerUp.health.play();
           break;
         default:
@@ -336,6 +349,13 @@ function draw() {
     }, 10000);
   }
 
+  if (ship.wingman_activated) {
+    ship.wingman(sprites.ship);
+    window.setTimeout(function() {
+      ship.wingman_activated = false;
+    }, 10000);
+  }
+
   //******************************************************************************* */
 
   /**
@@ -343,8 +363,10 @@ function draw() {
    */
 
   if (enemies.length == 0) {
-    text("YOU WON! PRESS N KEY FOR THE NEXT LEVEL", width / 2, height / 2);
+    paused = true;
     newLevel = true;
+    lasers = [];
+    text("YOU WON! PRESS N KEY FOR THE NEXT LEVEL", width / 2, height / 2);
   }
   //******************************************************************************* */
 
@@ -356,48 +378,76 @@ function draw() {
 }
 
 function GameOver() {
-  ship.score = 0;
-  ship.health = 0;
   lasers = [];
   paused = true;
   text("GAME OVER! PRESS N KEY TO START A NEW GAME", width / 2, height / 2);
-
   setTimeout(() => {
     levelC = 1;
+    gameIsOver = true;
+    newLevel = false;
     frameRate(0);
   }, 100);
 }
 
 function keyPressed() {
-  let pressedKey = key
-  if ((pressedKey === " " && !paused) || (pressedKey.toLowerCase() === "z" && !paused)) {
-    var laser = new Laser(ship);
+  let pressedKey = key.toLowerCase();
+  if ((pressedKey === " " && !paused) || (pressedKey === "z" && !paused)) {
+    var laser
+    if(levelC == 5){
+      laser = new Laser2D(ship);
+    }else{
+      laser = new Laser(ship);
+    }
+    
     lasers.push(laser);
     muted ? sounds.laser[0].pause() : sounds.laser[0].play();
-  } else if (pressedKey.toLowerCase() === "p") {
+  } else if (pressedKey === "p") {
     paused = true;
     textAlign(CENTER);
     textSize(35);
     fill(255);
     text(`PAUSED`, width / 2, height / 2);
     frameRate(0);
-    // sounds.song.stop();
-  } else if (pressedKey.toLowerCase() === "r") {
+    sounds.music.main.pause();
+    sounds.music.paused.play();
+  } else if (pressedKey === "r") {
     paused = false;
+    sounds.music.paused.pause();
+    sounds.music.main.play();
+
     frameRate(60);
-  } else if (pressedKey.toLowerCase() === "x") {
+  } else if (pressedKey === "x") {
     if (missile_amount > 0) {
-      let missile = new Missile(ship);
+      var missile
+     
+      if(levelC == 5){
+        missile = new Missile2D(ship);
+      }else{
+        missile = new Missile(ship);
+      }
+      
       missiles.push(missile);
       muted ? sounds.missile.pause() : sounds.missile.play();
       hud.number--;
     }
     missile_amount--;
-  } else if (pressedKey.toLowerCase() === "m") {
+  } else if (pressedKey === "m") {
     muted = !muted;
-  } else if (pressedKey.toLowerCase() === "n") {
-    laser = []
-    window.clearInterval(setIntervalID)
+
+    if (muted) {
+      sounds.music.main.pause();
+    } else {
+      sounds.music.main.loop();
+    }
+  } else if (pressedKey === "n") {
+    laser = [];
+
+    if (gameIsOver) {
+      newGameStarted = true;
+      gameIsOver = false;
+    }
+
+    window.clearInterval(setIntervalID);
     newGame();
   }
 }
@@ -405,14 +455,21 @@ function keyPressed() {
 function newGame() {
   frameRate(60);
   levels = new Levels();
-  ship = new Ship();
   paused = false;
+
   if (newLevel) {
     levelC++;
     newLevel = false;
   }
 
+  if (newGameStarted) {
+    ship = new Ship();
+    livesC = 3;
+    newGameStarted = false;
+  }
+
   ship.level = levelC;
+  ship.high_score = highscore;
 
   switch (ship.level) {
     case 1:
@@ -444,7 +501,10 @@ function newGame() {
       }
       break;
     case 5:
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 30; i++) {
+        asteroids[i] = new Asteroids();
+      }
+      for (let i = 0; i < 15; i++) {
         enemies[i] = new eStarFighter();
       }
       break;
@@ -461,7 +521,13 @@ function newGame() {
         enemies[rI][eI].position.y,
         powers[pI]
       );
-    } else {
+    } else if(ship.level == 5){
+      power_up = new PowerUp2D(
+        enemies[rI],
+        powers[pI]
+      );
+
+    }else {
       power_up = new PowerUp(
         enemies[rI].position.x,
         enemies[rI].position.y,
@@ -469,4 +535,38 @@ function newGame() {
       );
     }
   }, 30000);
+
+}
+
+function musicConfig() {
+  sounds.laser.forEach(laser => {
+    laser.setVolume(0.2);
+  });
+
+  sounds.explosion.forEach(e => {
+    e.setVolume(0.2);
+  });
+
+  sounds.music.main.loop();
+}
+
+
+function Ship2DRendering(){
+  ship.show(sprites.ship);
+  ship.rotate();
+  ship.update();
+  ship.screenEdge();
+
+  if (keyIsDown(RIGHT_ARROW)) {
+    ship.setRotation(0.1);
+  } else if (keyIsDown(LEFT_ARROW)) {
+    ship.setRotation(-0.1);
+  } else if (keyIsDown(UP_ARROW)) {
+    ship.thrusting(true);
+  }
+}
+
+function keyReleased() {
+  ship.setRotation(0);
+  ship.thrusting(false);
 }
