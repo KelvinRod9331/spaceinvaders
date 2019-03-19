@@ -17,6 +17,7 @@ function EnemyLaser(alien) {
   };
 
   this.hits = function(ship) {
+
     var left = dist(this.xL, this.yL, ship.x, ship.y);
     var right = dist(this.xR, this.yR, ship.x, ship.y);
     if (left < this.r + ship.r || right < this.r + ship.r) {

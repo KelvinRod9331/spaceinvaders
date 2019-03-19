@@ -47,14 +47,7 @@ function Ship() {
     this.health -= d;
   };
 
-  this.lifeIndicator = function() {
-    push()
-    textAlign(RIGHT);
-    textSize(10);
-    fill(255);
-    text(`${this.lives}`, this.x + this.r, this.y - 10);
-    pop();
-  };
+  
 
   this.weapon_Gauge = function() {
     push();

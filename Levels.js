@@ -81,6 +81,8 @@ function Levels() {
       laser.move();
       laser.offScreen();
 
+      
+
       enemies.forEach((e, ind) => {
         if (e.length !== 0) {
           for (let x = 0; x < e.length; x++) {
@@ -135,6 +137,91 @@ function Levels() {
     }
   };
 
+  this.xMotherShipBoss = function(boss){
+    boss.show(sprites.bosses.xMotherShip)
+    boss.move()
+    boss.onEdge()
+    // boss.health_bar()
+
+
+
+    if (boss.bossWeapons) {
+      boss.bossWeapons.show();
+      boss.bossWeapons.move();
+
+      if (boss.bossWeapons.hits(ship)) {
+        var animated = new Sprite(
+          sprites.explosion,
+          ship,
+          "ship",
+          ship.shield
+        );
+        boss.bossWeapons = undefined;
+        muted
+          ? sounds.explosion[Math.floor(random(0, 2))].pause()
+          : sounds.explosion[Math.floor(random(0, 2))].play();
+        animated.show();
+        if (!ship.shield) {
+          ship.damage(boss.power);
+        }
+      } else if (boss.bossWeapons.offScreen()) {
+        boss.bossWeapons = undefined;
+      }
+    }
+
+    lasers.forEach(laser => {
+      if (ship.wingman_activated) {
+        laser.wingman(sprites.laser);
+      }
+      laser.show(sprites.laser);
+      laser.move();
+      laser.offScreen();
+
+     
+        if (laser.hits(boss)) {
+          var animated = new Sprite(sprites.explosion, boss, "alien");
+          boss.damage(laser.power);
+
+          if (boss.health <= 0) {
+            boss.remove();
+          }
+          laser.remove();
+          muted
+            ? sounds.explosion[Math.floor(random(0, 2))].pause()
+            : sounds.explosion[Math.floor(random(0, 2))].play();
+          animated.show();
+          ship.score += 10;
+
+          if (boss.toDelete) {
+            //do something 
+          }
+        }
+   
+    });
+
+    // missiles.forEach(missile => {
+    //   missile.show(sprites.missile);
+    //   missile.move();
+    //   missile.offScreen();
+
+    //     if (missile.hits()) {
+    //       var animated = new Sprite(sprites.explosion, boss, "alien");
+    //       boss.remove();
+    //       missile.remove();
+    //       muted
+    //         ? sounds.explosion[Math.floor(random(0, 2))].pause()
+    //         : sounds.explosion[Math.floor(random(0, 2))].play();
+    //       animated.show();
+    //       ship.score += 20;
+
+    //       if (boss.toDelete) {
+    //         //do something
+    //       }
+    //     }
+      
+    // });
+  }
+
   this.ufosLoop = function(ufos) {
     ufos.forEach(ufo => {
       ufo.show(sprites.enemies.ufo);
@@ -143,7 +230,7 @@ function Levels() {
 
       if (ufo.collided(ship)) {
         if (!ship.shield) {
-          ship.damage(1);
+          ship.damage(3);
         }
       }
 
@@ -173,6 +260,9 @@ function Levels() {
     });
 
     lasers.forEach(laser => {
+      if (ship.wingman_activated) {
+        laser.wingman(sprites.laser);
+      }
       laser.show(sprites.laser);
       laser.move();
       laser.offScreen();
@@ -302,6 +392,9 @@ function Levels() {
     }
 
     lasers.forEach(laser => {
+      if (ship.wingman_activated) {
+        laser.wingman(sprites.laser);
+      }
       laser.show(sprites.laser);
       laser.move();
       laser.offScreen();
@@ -410,6 +503,9 @@ function Levels() {
     });
 
     lasers.forEach(laser => {
+      if (ship.wingman_activated) {
+        laser.wingman(sprites.laser);
+      }
       laser.show(sprites.laser);
       laser.move();
       laser.offScreen();

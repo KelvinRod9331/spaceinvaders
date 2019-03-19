@@ -37,7 +37,7 @@ function xStarFighter(x, y) {
   };
 
   this.move = function() {
-    this.position.x = this.position.x + this.xdir;
+    this.position.x += this.xdir;
   };
 
   this.collided = function(ship) {

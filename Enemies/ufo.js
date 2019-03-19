@@ -1,9 +1,9 @@
 function UFO() {
-  this.position = createVector(random(-width, width), random(-height));
+  this.position = createVector(random(-width, width), random(height));
   this.velocity = p5.Vector.random2D();
   this.velocity.mult(2.3);
   this.heading = random(0,10);
-  this.r = 25;
+  this.r = 30;
   this.toDelete = false;
   this.alienLasers;
   this.damage = 100;
