@@ -576,6 +576,7 @@ function newGame() {
       ship = new Ship2D();
       ship.score = highscore;
       ship.high_score = highscore;
+      levelC = 3
       for (let i = 0; i < 30; i++) {
         asteroids[i] = new Asteroids();
       }
