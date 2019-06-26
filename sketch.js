@@ -1,3 +1,6 @@
+"use strict";
+
+var newLevel = false
 var ship,
   canvas,
   power_up,
@@ -12,20 +15,19 @@ var ship,
   playerDied = false,
   highscore = 0,
   newGameStarted = false,
-  gameIsOver = false;
-(newLevel = false),
-  // (newBoss = false),
-  (muted = false),
-  (paused = false),
-  (activated = false),
-  (missile_amount = 0),
-  (lasers = []),
-  (enemies = []),
-  (missiles = []),
-  (asteroids = []),
-  (bosses = {}),
-  (sounds = {}),
-  (sprites = {});
+  gameIsOver = false,
+  //newBoss = false,
+  muted = false,
+  paused = false,
+  activated = false,
+  missile_amount = 0,
+  lasers = [],
+  enemies = [],
+  missiles = [],
+  asteroids = [],
+  bosses = {},
+  sounds = {},
+  sprites = {};
 
 function preload() {
   sprites["ship"] = loadImage("Sprites/Spaceships/Player Ships/starship.svg");
@@ -187,7 +189,7 @@ function setup() {
   hud = new HUD();
   musicConfig();
   newGame();
-  BossLevels();
+  // BossLevels();
   background(100);
 }
 
@@ -576,7 +578,7 @@ function newGame() {
       ship = new Ship2D();
       ship.score = highscore;
       ship.high_score = highscore;
-      levelC = 3
+      levelC = 5
       for (let i = 0; i < 30; i++) {
         asteroids[i] = new Asteroids();
       }
